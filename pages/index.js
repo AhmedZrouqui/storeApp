@@ -1,8 +1,18 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import { useDispatch } from "react-redux";
+import { getAllUsers } from '../redux/userSlice'
 
 export default function Home() {
+
+  const dispatch = useDispatch()
+  const getUsers = async () => {
+    return dispatch(getAllUsers());
+  }
+  const users = getUsers()
+  console.log("users", users)
+
   return (
     <div className={styles.container}>
       <Head>
