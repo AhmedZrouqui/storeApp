@@ -16,8 +16,41 @@ router.route('/add').post((req, res) => {
         .catch((err) => res.status(400).json('Error: ' + err));
 });
 
+router.route('/auth').get((req, res) =>{
+    const {username, password} = req.body;
+
+    User.findOne({username: username})
+        .then((user) => {
+
+            user.comparePassword(password, function(err, isMatch){
+            if(err) throw err
+
+            res.json({
+                'status' : isMatch,
+                'data' : isMatch ? user : null,
+            })
+        });
+    })
+        .catch((err) => res.status(400).json('Error: ' + err));
+});
+
+router.route('/update').post((req, res) =>{
+    const {id, user} = req.body
+    User.updateOne({id: id},
+        {username: user.username, password: user.password})
+        .then(() => res.json({'status': 'success'} ))
+        .catch((err) => res.status(400).json('Error: ' + err));
+})
+
+
+
 router.route('/remove').post((req, res) => {
     //TODO:add remove function
+    const {id} = req.body
+
+    User.findByIdAndDelete(id)
+        .then(() => res.json({'status': "success"}))
+        .catch((err) => res.status(400).json('Error: ' + err))
 })
 
 module.exports = router;
