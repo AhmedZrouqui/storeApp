@@ -1,13 +1,13 @@
 const router = require('express').Router();
 let User = require('../models/user.model');
 
-router.route('/').get((req,res) => {
+router.route('/list').get((req,res) => {
     User.find()
         .then((users) => res.json(users))
         .catch((err) => res.status(400).json('Error: ' + err));
 });
 
-router.route('/add').post((req, res) => {
+router.route('/register').post((req, res) => {
 
     const user = new User(req.body);
 
@@ -15,6 +15,10 @@ router.route('/add').post((req, res) => {
         .then(() => res.json('User added successfully!'))
         .catch((err) => res.status(400).json('Error: ' + err));
 });
+
+router.route('/addMany').post((req, res) => {
+    //TODO: add multiple users at once
+})
 
 router.route('/auth').get((req, res) =>{
     const {username, password} = req.body;
@@ -45,7 +49,6 @@ router.route('/update').post((req, res) =>{
 
 
 router.route('/remove').post((req, res) => {
-    //TODO:add remove function
     const {id} = req.body
 
     User.findByIdAndDelete(id)
