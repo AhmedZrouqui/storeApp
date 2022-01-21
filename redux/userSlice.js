@@ -4,9 +4,10 @@ import axios from "axios";
 
 export const getAllUsers = createAsyncThunk('users/getAllUsers', async () => {
         try{
-            return await fetch(`http://localhost:5000/users/`).then((res) => res.json());
+            const data = axios.get(`http://localhost:5000/user/list`)
+            if((await data).status === 200) return {status: 'success', data:(await data).data}
         }catch(err){
-            console.log(err)
+            return {status: 'failed'}
         }
     }
 )
@@ -15,18 +16,18 @@ export const getAllUsers = createAsyncThunk('users/getAllUsers', async () => {
 // @ts-ignore
 export const userSlice = createSlice({
     name: 'user',
-    initialState: { entities: {}, loading: 'idle' },
+    initialState: {},
     reducers: {
         //reducers
     },
     extraReducers:{
         // Add reducers for additional action types here, and handle loading state as needed
         [getAllUsers.pending] : (state, action) => {
-            state.loading = 'loading'
+            state = action.payload
         },
 
         [getAllUsers.fulfilled] : (state, action) => {
-            state.entities = action.payload
+            state = action.payload
         },
     },
 });
