@@ -19,3 +19,13 @@ router.route('/insert').post(async (req, res) => {
         .then(() => res.status(200).send("Inserted successfully!"))
         .catch((err) => res.status(400).json("Error" + err))
 })
+
+router.route('/getAll').get( (req, res) => {
+    const {id} = req.body
+
+    CartItem.find({_id: id})
+        .then((items) => res.status(200).json(items))
+        .catch((err) => res.status(400).json('Error: '+ err))
+})
+
+module.exports = router;

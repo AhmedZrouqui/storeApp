@@ -1,6 +1,6 @@
 const router = require('express').Router();
 let User = require('../models/user.model');
-const jwt = require("jsonwebtoken");
+const jwt = require('../helpers/jwtHelpers')
 const bcrypt = require("bcrypt");
 
 router.route('/list').get((req,res) => {
@@ -34,13 +34,7 @@ router.route('/register').post(async (req, res) => {
 
         const user = new User(_user);
 
-        user.token = jwt.sign(
-            { userId : user._id, email:_user.email},
-            process.env.TOKEN_SECRET,
-            {
-                expiresIn: "2h"
-            }
-        )
+        user.token = jwt.sign(user)
 
         user.save()
             .then((user) => res.status(200).json(user))
@@ -50,25 +44,19 @@ router.route('/register').post(async (req, res) => {
     }
 });
 
-router.route('/auth').get((req, res) =>{
-    const {id, email, username, password} = req.body;
+router.route('/auth').get(async (req, res) =>{
+    const {email, username, password} = req.body;
 
-    const filter = email ?
-        {email: email} :
-        {username: username}
+    const user = await User.find({username: username}||{email: email})
 
-    const token = jwt.sign(
-        { userId : id, email: email},
-        process.env.TOKEN_SECRET,
-        {
-            expiresIn: "2h"
-        }
-    )
+    if(!user) res.status(400).send("User not found");
 
-    User.findOneAndUpdate(filter, {token: token})
+    const token = jwt.sign(user)
+
+    User.findOneAndUpdate({username: username}||{email: email}, {token: token})
         .then((user) => {
             user.comparePassword(password, function(err, isMatch){
-                if(err) throw err
+                if(err) res.status(400).send("password mismatch");
 
                 user.token = token
 
