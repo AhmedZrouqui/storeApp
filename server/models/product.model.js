@@ -1,6 +1,6 @@
-const Schema = require("./mongoose.schema");
 const helpers = require('./mongoose.helper');
-
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const schema = {
     name: {

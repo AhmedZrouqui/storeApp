@@ -2,8 +2,6 @@ const helpers = require('./mongoose.helper')
 const bcrypt = require('bcrypt'),
     SALT_WORK_FACTOR = 10;
 
-//TODO: add more user attributes
-
 const schema = {
     username: {
         type: String,
@@ -35,9 +33,8 @@ const schema = {
 
 const userSchema = helpers.createModelSchema(schema)
 
-userSchema.pre('save', function(next){
+userSchema.pre('save' , async function(next){
     let user = this;
-
     if(!user.isModified('password')) return next();
 
     bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt){

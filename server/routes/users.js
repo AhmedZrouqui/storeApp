@@ -1,12 +1,21 @@
 const router = require('express').Router();
 let User = require('../models/user.model');
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 router.route('/list').get((req,res) => {
     User.find()
         .then((users) => res.json(users))
         .catch((err) => res.status(400).json('Error: ' + err));
 });
+
+router.route('/find').get((req, res) => {
+    const {email} = req.body
+
+    User.findOne({email: email})
+        .then((user) => res.status(200).json(user))
+        .catch((err) => res.status(400).json('Error: ' + err));
+})
 
 router.route('/register').post(async (req, res) => {
     try{
@@ -41,54 +50,61 @@ router.route('/register').post(async (req, res) => {
     }
 });
 
-router.route('/addMany').post((req, res) => {
-    //TODO: add multiple users at once
-})
-
 router.route('/auth').get((req, res) =>{
-    const {username, password} = req.body;
+    const {id, email, username, password} = req.body;
 
-    User.findOne({username: username})
+    const filter = email ?
+        {email: email} :
+        {username: username}
+
+    const token = jwt.sign(
+        { userId : id, email: email},
+        process.env.TOKEN_SECRET,
+        {
+            expiresIn: "2h"
+        }
+    )
+
+    User.findOneAndUpdate(filter, {token: token})
         .then((user) => {
-
             user.comparePassword(password, function(err, isMatch){
-            if(err) throw err
+                if(err) throw err
 
-            res.json({
-                'status' : isMatch,
-                'data' : isMatch ? user : null,
-            })
-        });
-    })
+                user.token = token
+
+                res.json({
+                    'status' : isMatch,
+                    'data' : isMatch ? user : null,
+                })
+            });
+        })
         .catch((err) => res.status(400).json('Error: ' + err));
 });
 
-router.route('/update').post((req, res) =>{
-    const {id, user} = req.body
-    User.updateOne({id: id},
-        {username: user.username, password: user.password})
-        .then(() => res.json({'status': 'success'} ))
-        .catch((err) => res.status(400).json('Error: ' + err));
+router.route('/update').post(async (req, res) =>{
+    const _user = req.body
+    let salt = null,
+        hash = null;
+    if(_user.user.password){
+        salt = bcrypt.genSaltSync(10);
+        hash = bcrypt.hashSync(_user.user.password, salt);
+
+        _user.user.password = hash
+    }
+
+    User.findByIdAndUpdate(_user.id,_user.user)
+        .then((user) => res.status(200).json(user))
+        .catch((err) => res.status(400).json(err))
 })
 
 
 
 router.route('/remove').post(async (req, res) => {
-    const _user = req.body
+    const {id} = req.body
 
-    const user = await User.findOne({email: _user.email})
-    if (!user) res.status(409).json('User doesn\'t exist, please try again with a valid user!')
-
-    await Object(_user).keys.map(attr => user.attr = _user.attr)
-    
-    user.save()
-        .then((user) => res.status(200).json(user))
-        .catch((err) => res.status(400).json('Error: ' + err))
-    /*
     User.findByIdAndDelete(id)
-        .then(() => res.json({'status': "success"}))
+        .then(() => res.status(200).json({'status': "success"}))
         .catch((err) => res.status(400).json('Error: ' + err))
-     */
 })
 
 module.exports = router;

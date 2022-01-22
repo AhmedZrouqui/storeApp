@@ -1,5 +1,6 @@
 const helpers = require('./mongoose.helper')
-const Schema = require('./mongoose.schema')
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const schema = {
     userId: {
