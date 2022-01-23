@@ -20,10 +20,11 @@ const verifyToken = (req, res, next) => {
     next()
 }
 
+
 const verify = (req, res, next) => {
     try{
-        const token = req.headers['authorization']
-        req.userData = jwt.verify(token, process.env.TOKEN_SECRET);
+        const token = req.headers.authorization
+        req.userData = jwt.verify(token.split(" ")[1], process.env.TOKEN_SECRET);
         next();
     }catch(err){
         return res.status(401).json({

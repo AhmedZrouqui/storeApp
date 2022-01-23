@@ -70,8 +70,10 @@ router.route('/auth').post(async (req, res) =>{
 
 router.route('/update').post(jwt.verify, async (req, res) =>{
     const _user = req.body
+
     let salt = null,
         hash = null;
+
     if(_user.user.password){
         salt = bcrypt.genSaltSync(10);
         hash = bcrypt.hashSync(_user.user.password, salt);
