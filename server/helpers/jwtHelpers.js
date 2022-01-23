@@ -1,17 +1,11 @@
 const jwt = require("jsonwebtoken");
 
-const sign = (props) => {
-    const {id, email, username} = props;
+const sign = (user) => {
 
-    return jwt.sign(
-        {
-            userId : id,
-            email: email,
-            username: username
-        },
+    return jwt.sign({user: user},
         process.env.TOKEN_SECRET,
         {
-            expiresIn: "2h"
+            expiresIn: "1h"
         }
     )
 }
@@ -26,14 +20,17 @@ const verifyToken = (req, res, next) => {
     next()
 }
 
-const verify = (token, res ,req, payload) => {
-    jwt.verify(token, process.env.TOKEN_SECRET, (err, data) => {
-        if(err) res.status(err).send("Unauthorized")
-
-        res.status(200).json({
-            payload
+const verify = (req, res, next) => {
+    try{
+        const token = req.headers['authorization']
+        req.userData = jwt.verify(token, process.env.TOKEN_SECRET);
+        next();
+    }catch(err){
+        return res.status(401).json({
+            message:'Unauthorized!',
         })
-    })
+    }
+
 }
 
 module.exports = {sign, verifyToken, verify}

@@ -18,58 +18,57 @@ router.route('/find').get((req, res) => {
 })
 
 router.route('/register').post(async (req, res) => {
-    try{
-        const _user = req.body
+    const _user = req.body
 
 
-        if (!(_user.username && _user.email && _user.password && _user.firstName && _user.lastName)) {
-            res.status(400).send("All input is required")
-        }
-
-        const existingUser = await User.findOne({email: _user.email})
-
-        if(existingUser){
-            res.status(409).send("User already exists, please login!")
-        }
-
-        const user = new User(_user);
-
-        user.token = jwt.sign(user)
-
-        user.save()
-            .then((user) => res.status(200).json(user))
-            .catch((err) => res.status(400).json('Error: ' + err));
-    }catch(err) {
-        console.log(err)
+    if (!(_user.username && _user.email && _user.password && _user.firstName && _user.lastName)) {
+        res.status(400).send("All input is required")
     }
+
+    const existingUser = await User.findOne({email: _user.email})
+
+    if(existingUser){
+        res.status(409).send("User already exists, please login!")
+    }
+
+    const salt = bcrypt.genSaltSync(10),
+        hash = bcrypt.hashSync(_user.password, salt);
+
+    const user = new User(_user);
+
+    user.token = await jwt.sign(user)
+    user.password = hash
+
+    user.save()
+        .then((user) => res.json(user))
+        .catch((err) => res.status(400).json('Error: ' + err));
 });
 
-router.route('/auth').get(async (req, res) =>{
-    const {email, username, password} = req.body;
+router.route('/auth').post(async (req, res) =>{
+    const {username, password} = req.body;
 
-    const user = await User.find({username: username}||{email: email})
+    const user = await User.find({username: username})
 
     if(!user) res.status(400).send("User not found");
 
     const token = jwt.sign(user)
 
-    User.findOneAndUpdate({username: username}||{email: email}, {token: token})
+    User.findOne({username: username})
         .then((user) => {
-            user.comparePassword(password, function(err, isMatch){
+            user?.comparePassword(password, function(err, isMatch){
                 if(err) res.status(400).send("password mismatch");
-
-                user.token = token
 
                 res.json({
                     'status' : isMatch,
                     'data' : isMatch ? user : null,
+                    ...(isMatch && {'token': token })
                 })
             });
         })
         .catch((err) => res.status(400).json('Error: ' + err));
 });
 
-router.route('/update').post(async (req, res) =>{
+router.route('/update').post(jwt.verify, async (req, res) =>{
     const _user = req.body
     let salt = null,
         hash = null;
