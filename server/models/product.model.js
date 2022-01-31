@@ -17,10 +17,17 @@ const schema = {
         type: Schema.Types.Decimal128,
         required: true,
     },
-    stockQuantity: {
+    discount: {
+        type: Schema.Types.Decimal128,
+        required: false,
+    },
+    quantity: {
         type: Number,
         required: true,
-    }
+    },
+    category: [
+        {type: Schema.Types.ObjectId, required: true, ref: 'Category'}
+    ]
 };
 
 

@@ -3,12 +3,6 @@ let User = require('../models/user.model');
 const jwt = require('../helpers/jwtHelpers')
 const bcrypt = require("bcrypt");
 
-router.route('/list').get((req,res) => {
-    User.find()
-        .then((users) => res.json(users))
-        .catch((err) => res.status(400).json('Error: ' + err));
-});
-
 router.route('/find').get((req, res) => {
     const {email} = req.body
 
@@ -32,36 +26,36 @@ router.route('/register').post(async (req, res) => {
     }
 
     const salt = bcrypt.genSaltSync(10),
-        hash = bcrypt.hashSync(_user.password, salt);
+          hash = bcrypt.hashSync(_user.password, salt);
 
     const user = new User(_user);
 
-    user.token = await jwt.sign(user)
+    const token = await jwt.sign(user)
+
     user.password = hash
 
     user.save()
-        .then((user) => res.json(user))
+        .then((user) => res.json({...user, token: token}))
         .catch((err) => res.status(400).json('Error: ' + err));
 });
 
 router.route('/auth').post(async (req, res) =>{
-    const {username, password} = req.body;
+    const _user = req.body;
 
-    const user = await User.find({username: username})
+    const user = await User.find(_user)
 
     if(!user) res.status(400).send("User not found");
 
     const token = jwt.sign(user)
 
-    User.findOne({username: username})
+    User.findOne(_user)
         .then((user) => {
-            user?.comparePassword(password, function(err, isMatch){
+            user?.comparePassword(_user.password, function(err, isMatch){
                 if(err) res.status(400).send("password mismatch");
 
                 res.json({
                     'status' : isMatch,
-                    'data' : isMatch ? user : null,
-                    ...(isMatch && {'token': token })
+                    'data' : isMatch ? {...user, token: token} : null,
                 })
             });
         })
@@ -88,7 +82,7 @@ router.route('/update').post(jwt.verify, async (req, res) =>{
 
 
 
-router.route('/remove').post(async (req, res) => {
+router.route('/remove').post(jwt.verify, async (req, res) => {
     const {id} = req.body
 
     User.findByIdAndDelete(id)
