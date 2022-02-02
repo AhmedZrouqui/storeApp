@@ -7,20 +7,22 @@ import {Flex, Box, Text, HStack} from "@chakra-ui/react"
 
 export default function Home() {
 
-  const [users, setUsers] = useState({})
+  const [users, setUsers] = useState({});
+  const navigation = [
 
+  ]
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(getAllUsers())
-        .then((res) => {
-          if(res.payload.status === "success") setUsers(res.payload.data)
-    })
+      .then((res) => {
+        if(res.payload.status === "success") setUsers(res.payload.data)
+      })
   }, [dispatch])
 
   return (
-      <Box h="100vh" w="100vw" bg="gray.900">
+      <Box h="100vh" w="100vw" bg="offWhite">
           <HStack p={5}>
-              <Text color="white">
+              <Text variant='logo'>
                   Watches
               </Text>
           </HStack>
