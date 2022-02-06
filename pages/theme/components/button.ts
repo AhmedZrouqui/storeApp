@@ -21,6 +21,49 @@ export const buttonStyle = {
                bg: mode(darken('secondary', 20), whiten('secondary', 20))(props)
             }
         }),
+        icon: (props) => ({
+            bg:"transparent",
+            color: "blackish",
+            border: "none",
+            fontWeight: "500",
+            outline:"none",
+            fontSize: ["xl", "2xl"],
+            padding: "0",
+            _hover: {
+                bg: "transparent",
+                color: "supple",
+                transform: "scale(1.2)"
+            },
+            _focus: {
+                outline: "none",
+                boxShadow: "none",
+                bg:"transparent"
+            },
+            _active: {
+                bg:"transparent"
+            }
+
+        }),
+        ghost: (props) => ({
+            bg:"transparent",
+            color: "blackish",
+            border: "none",
+            fontWeight: "500",
+            outline:"none",
+            _hover: {
+                bg: "transparent",
+                color: "supple",
+            },
+            _focus: {
+                outline: "none",
+                boxShadow: "none",
+                bg:"transparent"
+            },
+            _active: {
+                bg:"transparent"
+            }
+
+        }),
         primaryOutline: (props) => ({
             bg: "transparent",
             color: "primary",
@@ -31,7 +74,8 @@ export const buttonStyle = {
                 bg: "primary",
                 color: "white"
             }
-        })
+        }),
+
     },
     //default values for "size" and "variant"
     defaultProps: {},

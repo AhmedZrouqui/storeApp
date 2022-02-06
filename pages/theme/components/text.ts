@@ -37,10 +37,23 @@ export const textStyles = {
         },
 
         logo: {
-            fontSize: ['16px', '24px'],
-            fontWeight: 'bold',
+            fontSize: ['18px', '24px'],
+            fontWeight: '900',
             lineHeight: '110%',
-            color: "blackish"
+            textTransform: 'uppercase',
+            color: "blackish",
+            letterSpacing:["4px", "5px"],
+            fontFamily: "kanit"
+        },
+
+        link: {
+            fontSize: "16px",
+            textDecoration: "underline",
+            color:"blackish",
+            fontFamily: "kanit",
+            lineHeight: '110%',
+            cursor: "pointer",
+            fontWeight:"400 "
         }
     },
     //default values for "size" and "variant"

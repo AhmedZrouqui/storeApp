@@ -30,7 +30,7 @@ router.route('/register').post(async (req, res) => {
 
     const user = new User(_user);
 
-    const token = await jwt.sign(user)
+    const token = jwt.sign(user)
 
     user.password = hash
 
