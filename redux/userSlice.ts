@@ -20,7 +20,20 @@ export const userAuth = createAsyncThunk(
     async (options, thunkAPI) => {
         try{
             let payload = options
-            const data = axios.post(`http://localhost:5000/user/auth`, payload)
+            const data = axios.post(`${process.env.API_URL}/user/auth`, payload)
+            if((await data).status === 200) return (await data).data
+        } catch(err){
+            return thunkAPI.rejectWithValue(err.response.data)
+        }
+    }
+)
+
+export const updateUser = createAsyncThunk(
+    'user/updateUser',
+    async (options, thunkAPI) => {
+        try{
+            let payload = options
+            const data = axios.post(`${process.env.API_URL}/user/update`, payload)
             if((await data).status === 200) return (await data).data
         } catch(err){
             return thunkAPI.rejectWithValue(err.response.data)
@@ -49,6 +62,22 @@ export const userSlice = createSlice({
             state.user = action.payload
         })
         builder.addCase(userAuth.rejected, (state, action) => {
+            state.loading = false
+            state.error = true
+            state.user = {}
+        })
+        
+        builder.addCase(updateUser.pending, (state, action) => {
+            state.loading = true
+            state.error = false
+            state.user = {}
+        })
+        builder.addCase(updateUser.fulfilled, (state, action) => {
+            state.loading = false
+            state.error = false
+            state.user = action.payload
+        })
+        builder.addCase(updateUser.rejected, (state, action) => {
             state.loading = false
             state.error = true
             state.user = {}

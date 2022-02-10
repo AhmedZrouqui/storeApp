@@ -1,4 +1,4 @@
-import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import axios from "axios";
 import { IProduct } from '../pages/types/products.type';
 
@@ -19,7 +19,21 @@ export const getHomeProducts = createAsyncThunk(
     'products/getHomeProducts', 
     async (options, thunkAPI) => {
         try{
-            const data = axios.get(`http://localhost:5000/product/homeList`)
+            const data = axios.get(`${process.env.API_URL}/products/homeList`)
+            if((await data).status === 200) return (await data).data
+        } catch(err){
+            return thunkAPI.rejectWithValue(err.response.data)
+        }
+    }
+)
+
+export const addProduct = createAsyncThunk(
+    'products/addProduct',
+    async(options: any, thunkAPI) => {
+        try{
+            const {product} = options
+            console.log(options)
+            const data = axios.post(`${process.env.API_URL}/products/addOne`, product)
             if((await data).status === 200) return (await data).data
         } catch(err){
             return thunkAPI.rejectWithValue(err.response.data)
@@ -48,6 +62,22 @@ export const productSlice = createSlice({
             state.products = action.payload
         })
         builder.addCase(getHomeProducts.rejected, (state, action) => {
+            state.loading = false
+            state.error = true
+            state.products = []
+        })
+
+        builder.addCase(addProduct.pending, (state, action) => {
+            state.loading = true
+            state.error = false
+            state.products = []
+        })
+        builder.addCase(addProduct.fulfilled, (state, action) => {
+            state.loading = false
+            state.error = false
+            state.products = action.payload
+        })
+        builder.addCase(addProduct.rejected, (state, action) => {
             state.loading = false
             state.error = true
             state.products = []

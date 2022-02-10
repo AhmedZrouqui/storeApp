@@ -7,9 +7,11 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 import userReducer from './userSlice';
 import productsReducer from './productSlice'
+import categoryReducer from './categorySlice'
 
 export const store = configureStore({
     reducer: {
+        category : categoryReducer,
         user: userReducer,
         products: productsReducer
     },

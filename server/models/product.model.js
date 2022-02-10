@@ -17,6 +17,10 @@ const schema = {
         type: Schema.Types.Decimal128,
         required: true,
     },
+    image: {
+        type: String,
+        required: false,
+    },
     discount: {
         type: Schema.Types.Decimal128,
         required: false,
@@ -26,8 +30,14 @@ const schema = {
         required: true,
     },
     category: [
-        {type: Schema.Types.ObjectId, required: true, ref: 'Category'}
-    ]
+        {type: Schema.Types.ObjectId, required: false, ref: 'Category'}
+    ],
+    brand: {
+        type: Schema.Types.ObjectId, 
+        required: false, 
+        ref: 'Brand'
+    }
+    
 };
 
 

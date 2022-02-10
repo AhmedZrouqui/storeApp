@@ -7,7 +7,7 @@ function Product(props: any) {
 
 
     return (
-        <Flex cursor="pointer">
+        <Flex cursor="pointer" mx="20px">
             <NextImage src={pImage} alt={pName}/>
         </Flex>
     );
